@@ -1,6 +1,7 @@
 package com.cati.matricula_facil.domain;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -15,7 +16,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-
+@JsonIgnoreProperties("preRequisitos") //quando tentam abrir um disciplina que está dentro
 public class Disciplina {
 
     @Id

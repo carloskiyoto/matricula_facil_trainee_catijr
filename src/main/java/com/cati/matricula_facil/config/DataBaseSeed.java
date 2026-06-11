@@ -41,7 +41,7 @@ public class DataBaseSeed {
             calc2.setPreRequisitos(preReqCalc2);
             calc2 = disciplinaRepository.save(calc2);
 
-            System.out.println("ta feito chefe");
+            System.out.println("ta feito chefe, disciplinas criadas");
         };
     }
 }
