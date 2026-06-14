@@ -11,27 +11,27 @@ import org.springframework.web.bind.annotation.*;
 
 
 @RestController
-    @RequestMapping("/alunos")
+@RequestMapping("/alunos")
+@CrossOrigin(origins = "*")
     public class AlunoController{
 
         @Autowired //injeta dependências de aluno
         private AlunoRepository alunoRepository;
 
-        @PostMapping // Atenção: POST! Significa que estamos recebendo um "pacote" da internet
+        @PostMapping //POST recebendo um "pacote" da internet
         public ResponseEntity<Aluno> cadastrar(@RequestBody AlunoCadastroDTO dados) {
 
-            // 1. Pegamos a pasta oficial vazia
             Aluno novoAluno = new Aluno();
 
-            // 2. Copiamos os dados do formulário de papel (DTO) para a pasta oficial
+            //copia os dados do formulário de papel (DTO) para a pasta oficial
             novoAluno.setNome(dados.nome());
             novoAluno.setEmail(dados.email());
-            novoAluno.setSenha(dados.senha()); // Aviso: Mais para frente vamos ter que criptografar isso!
+            novoAluno.setSenha(dados.senha());
 
-            // 3. Mandamos o funcionário guardar na gaveta de alunos do Banco de Dados
+            //guarda na gaveta de alunos do Banco de Dados
             Aluno alunoSalvo = alunoRepository.save(novoAluno);
 
-            // 4. Devolvemos um aviso de "Sucesso! Cód: 201 (Created)" e mostramos como a pasta ficou
+            //sucesso e mostramos como a pasta ficou
             return ResponseEntity.status(HttpStatus.CREATED).body(alunoSalvo);
         }
         @PostMapping("/login")

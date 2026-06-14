@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import React, { useState } from 'react'
 import { GraduationCapIcon, EyeOffIcon } from '../assets/icons'
 import InputField from './InputField'
 import { Page } from '../types'
@@ -9,6 +9,46 @@ interface SignupCardProps {
 
 export default function SignupCard({ onNavigate }: SignupCardProps) {
   const [showPassword, setShowPassword] = useState(false)
+
+  //novas memórias:
+  const [nome, setNome] = useState('')
+  const [email, setEmail] = useState('')
+  const [senha, setSenha] = useState('')
+  const [confirmarSenha, setConfirmarSenha] = useState('')
+  const [erro, setErro] = useState('')
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    console.log("O botão foi clicado e a função chamou!")
+    e.preventDefault() // Trava o recarregamento da tela
+    setErro('') // Limpa erros de tentativas anteriores
+
+    // Validação
+    if (senha !== confirmarSenha) {
+      setErro('As senhas não coincidem!')
+      return
+    }
+
+    try {
+      // carteiro batendo no cadastro do Java
+      const resposta = await fetch('http://localhost:8080/alunos', {
+        method: 'POST',
+        //descreve o tipo do texto
+        headers: { 'Content-Type': 'application/json' },
+        //transforma em json
+        body: JSON.stringify({ nome, email, senha })
+      })
+
+      if (resposta.status === 201) {
+        //201 Created.
+        onNavigate?.('login')
+      } else {
+        //Erro 500
+        setErro('Erro ao cadastrar. Este e-mail já está em uso?')
+      }
+    } catch (error) {
+      setErro('Erro de conexão.')
+    }
+  }
 
   return (
     <div className="bg-white border border-[rgba(199,196,216,0.4)] rounded-2xl shadow-[0px_25px_50px_-12px_rgba(79,70,229,0.05)] flex flex-col gap-8 p-6 sm:p-[41px]">
@@ -32,17 +72,30 @@ export default function SignupCard({ onNavigate }: SignupCardProps) {
         </p>
       </div>
 
-      <div className="flex flex-col gap-5 w-full">
+      <form className="flex flex-col gap-5 w-full" onSubmit={handleSubmit}>
+
+        {erro && (
+            <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm font-medium text-center border border-red-200">
+              {erro}
+            </div>
+        )}
+
         <InputField
           label="Nome Completo"
           type="text"
           placeholder="Ex: João da Silva"
+          value = {nome}
+          onChange={(e) => setNome(e.target.value)}
         />
+
 
         <InputField
           label="E-mail Institucional"
           type="email"
           placeholder="joao.silva@aluno.edu.br"
+          value = {email}
+          onChange={(e) => setEmail(e.target.value)}
+
         />
 
         <InputField
@@ -58,6 +111,8 @@ export default function SignupCard({ onNavigate }: SignupCardProps) {
               <EyeOffIcon />
             </button>
           }
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
         />
 
         <div className="pb-2">
@@ -65,6 +120,8 @@ export default function SignupCard({ onNavigate }: SignupCardProps) {
             label="Confirmar Senha"
             type="password"
             placeholder="••••••••"
+            value={confirmarSenha}
+            onChange={(e) => setConfirmarSenha(e.target.value)}
           />
         </div>
 
@@ -74,7 +131,7 @@ export default function SignupCard({ onNavigate }: SignupCardProps) {
         >
           Criar Conta
         </button>
-      </div>
+      </form>
 
       <div className="pt-2">
         <div className="border-t border-[rgba(199,196,216,0.2)] pt-6 w-full">
