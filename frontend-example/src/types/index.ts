@@ -11,3 +11,14 @@ export interface User {
   password: string
   avatar: string | null
 }
+
+export interface Disciplina {
+  statusPreRequisito: boolean;
+  id: number
+  nome: string
+  codigo: string
+  vagas: number
+  creditos: number
+  horario: string
+
+}

@@ -1,16 +1,50 @@
 import DashboardHeader from '../components/DashboardHeader'
 import CatalogHeading from '../components/CatalogHeading'
 import mockUser from '../services/mockUser'
+import { useState, useEffect } from 'react'
+import {Disciplina} from "../types";
+import DisciplinaCard from "../components/DisciplinaCard.tsx";
+
 
 export default function DashboardPage() {
-  return (
+    // 1. A Memória (começa como uma lista vazia [])
+    const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
+
+    // 2. O Despertador (Roda apenas 1 vez quando a tela abre, graças aos [] no final)
+    useEffect(() => {
+        async function buscarDisciplinas() {
+            try {
+                const resposta = await fetch('http://localhost:8080/disciplinas')
+                if (resposta.ok) {
+                    const dados = await resposta.json() // Transforma a resposta em um objeto JS
+                    setDisciplinas(dados) // Guarda as matérias na memória!
+                }
+            } catch (erro) {
+                console.error("Erro ao buscar disciplinas. O Java tá ligado?", erro)
+            }
+        }
+
+        buscarDisciplinas()
+    }, [])
+    return (
     <div className="min-h-screen bg-ui-bg">
       <DashboardHeader user={mockUser} />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         <CatalogHeading semestre={mockUser.semestre} />
 
-        {/* Conteúdo do catálogo — a implementar */}
+          {/* A Fábrica: Cria uma grade que se ajusta ao celular ou PC */}
+          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+
+              {disciplinas.length === 0 ? (
+                  <p className="text-ui-muted">Carregando catálogo...</p>
+              ) : (
+                  disciplinas.map((materia) => (
+                      <DisciplinaCard key={materia.id} disciplina={materia} />
+                  ))
+              )}
+
+          </div>
         <div className="mt-8" />
       </main>
     </div>

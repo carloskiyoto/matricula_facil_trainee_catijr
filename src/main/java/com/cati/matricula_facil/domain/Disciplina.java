@@ -28,6 +28,7 @@ public class Disciplina {
     private Integer vagas;
     private Integer creditos;
     private String horario;
+    private boolean statusPreRequisito;
 
     @ManyToMany
     private List<Disciplina> preRequisitos;
