@@ -25,24 +25,23 @@ export default function LoginCard({ onNavigate }: LoginCardProps) {
         headers: {
           'Content-Type': 'application/json' // Avisamos que estamos mandando um papel no formato JSON
         },
-        // 4. Montamos o JSON exatamente igual fazíamos no Insomnia!
+        // 4. Montamos o JSON
         body: JSON.stringify({
           email: email,
           senha: senha
         })
       })
 
-      // 5. O que a Recepcionista do Java respondeu?
-      if (resposta.ok) { // É um código 200 OK?
-        // Deu certo! Navega pro Dashboard!
+      // 5. O que o Java respondeu?
+      if (resposta.ok) { // É um código 200 ?
         onNavigate?.('dashboard')
       } else {
         // Deu código 401 (Unauthorized)
         setErro('E-mail ou senha incorretos.')
       }
     } catch (error) {
-      // Erro de rede (se o Java estiver desligado, por exemplo)
-      setErro('Erro ao conectar ao servidor. O back-end está rodando?')
+      // Erro de rede
+      setErro('Erro ao conectar ao servidor.')
     }
   }
 
@@ -72,7 +71,7 @@ export default function LoginCard({ onNavigate }: LoginCardProps) {
               </div>
           )}
 
-          {/* 6. Conectamos os Inputs com a memória do React! */}
+          {/* 6. Conecta os Inputs com a memória do React */}
           <InputField
               label="E-mail"
               icon={<EmailIcon />}

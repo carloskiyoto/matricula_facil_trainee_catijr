@@ -1,5 +1,5 @@
 import { Disciplina } from '../types'
-
+import { useState } from 'react'
 interface DisciplinaCardProps {
     disciplina: Disciplina
 }
@@ -9,6 +9,22 @@ export default function DisciplinaCard({ disciplina }: DisciplinaCardProps) {
     const corStatus = disciplina.statusPreRequisito
         ? 'text-green-600 bg-green-50'
         : 'text-red-600 bg-red-50'
+    //memoria se o card ja foi clicado
+    const [matriculado, setMatriculado] = useState(false)
+     function toggleMatricula() {
+        if (matriculado) {
+          setMatriculado(false)
+        } else {
+          setMatriculado(true)
+        }
+      }
+
+    let buttonText = `Matricular`
+    if (disciplina.statusPreRequisito === false){
+        buttonText = `Sem pré-requisito`}
+    else if (matriculado){
+        buttonText = `Matriculado (Cancelar)`}
+
 
     return (
         <div className="bg-white border border-ui-border rounded-xl p-5 shadow-sm flex flex-col gap-3">
@@ -29,11 +45,16 @@ export default function DisciplinaCard({ disciplina }: DisciplinaCardProps) {
             </div>
 
             <button
-                disabled={!disciplina.statusPreRequisito}
-                className="mt-2 w-full bg-brand-primary text-white py-2 rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-                Matricular
-            </button>
+                    onClick={toggleMatricula}
+                    disabled={!disciplina.statusPreRequisito}
+                    className={`mt-2 w-full py-2 rounded-lg font-medium transition-colors ${
+                      matriculado
+                        ? 'bg-green-500 text-white hover:bg-red-500' // Fica vermelho se passar o mouse para cancelar
+                        : 'bg-brand-primary text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed'
+                    }`}
+                  >
+                    {buttonText}
+                  </button>
         </div>
     )
 }

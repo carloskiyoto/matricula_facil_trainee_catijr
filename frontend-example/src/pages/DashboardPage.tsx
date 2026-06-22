@@ -7,10 +7,10 @@ import DisciplinaCard from "../components/DisciplinaCard.tsx";
 
 
 export default function DashboardPage() {
-    // 1. A Memória (começa como uma lista vazia [])
+
     const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
 
-    // 2. O Despertador (Roda apenas 1 vez quando a tela abre, graças aos [] no final)
+
     useEffect(() => {
         async function buscarDisciplinas() {
             try {
@@ -20,7 +20,7 @@ export default function DashboardPage() {
                     setDisciplinas(dados) // Guarda as matérias na memória!
                 }
             } catch (erro) {
-                console.error("Erro ao buscar disciplinas. O Java tá ligado?", erro)
+                console.error("Erro ao buscar disciplinas.", erro)
             }
         }
 
@@ -33,7 +33,7 @@ export default function DashboardPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
         <CatalogHeading semestre={mockUser.semestre} />
 
-          {/* A Fábrica: Cria uma grade que se ajusta ao celular ou PC */}
+          {/*Cria uma grade que se ajusta ao celular ou PC */}
           <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
 
               {disciplinas.length === 0 ? (
