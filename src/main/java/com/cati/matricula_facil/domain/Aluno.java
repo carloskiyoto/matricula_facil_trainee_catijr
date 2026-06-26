@@ -28,5 +28,7 @@ public class Aluno {
     private String senha;
 
     @ManyToMany //um aluno tem varias disciplinas, as quais tem varios alunos
-    private List<Disciplina> disciplinas;
+    private List<Disciplina> disciplinas = new java.util.ArrayList<>();
+
+
 }

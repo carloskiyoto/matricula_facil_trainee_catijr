@@ -1,13 +1,11 @@
 package com.cati.matricula_facil.controller;
 
-
 import com.cati.matricula_facil.domain.Disciplina;
-import com.cati.matricula_facil.repository.DisciplinaRepository;
+import com.cati.matricula_facil.service.DisciplinaService; // Importa o teu novo Service
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -15,13 +13,19 @@ import java.util.List;
 @RequestMapping("/disciplinas")
 @CrossOrigin(origins = "*")
 public class DisciplinaController {
+    @Autowired
+    private DisciplinaService disciplinaService;
 
-    @Autowired //injeta dependências
-    private DisciplinaRepository disciplinaRepository;
-
-    @GetMapping //método GET de buscar
-    public List<Disciplina> listarDisciplinas(){
-        return disciplinaRepository.findAll();
+    @GetMapping
+    public ResponseEntity<List<Disciplina>> listar() {
+        List<Disciplina> disciplinas = disciplinaService.listarTodas();
+        return ResponseEntity.status(HttpStatus.OK).body(disciplinas);
     }
 
+    // cadastrar uma nova disciplina pelo painel Admin:
+    @PostMapping
+    public ResponseEntity<Disciplina> cadastrar(@RequestBody Disciplina disciplina) {
+        Disciplina novaDisciplina = disciplinaService.salvar(disciplina);
+        return ResponseEntity.status(HttpStatus.CREATED).body(novaDisciplina);
+    }
 }

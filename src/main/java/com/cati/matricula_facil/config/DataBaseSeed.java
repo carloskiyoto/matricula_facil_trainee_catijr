@@ -46,10 +46,23 @@ public class DataBaseSeed {
             calc2.setStatusPreRequisito(false);
             calc2.setHorario("10:00");
 
+            Disciplina ed = new Disciplina();
+            ed.setNome("Estrutura de Dados");
+            ed.setCodigo("ED102");
+            ed.setCreditos(4);
+            ed.setVagas(25);
+            ed.setHorario("Terça e Quinta - 10:00");
+            ed.setStatusPreRequisito(true);
+            disciplinaRepository.save(ed);
+
             List<Disciplina> preReqCalc2 = new ArrayList<Disciplina>();
             preReqCalc2.add(calc1);
             calc2.setPreRequisitos(preReqCalc2);
             calc2 = disciplinaRepository.save(calc2);
+
+
+
+
 
             System.out.println("ta feito chefe, disciplinas criadas");
         };

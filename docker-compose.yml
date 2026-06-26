@@ -2,12 +2,12 @@
 services:
   # Nome do nosso serviço de banco de dados
   db:
-    image: postgres:15 # Diz ao Docker para baixar a versão 15 do PostgreSQL da internet
-    container_name: matricula_db_container # O nome da nossa "caixa virtual"
+    image: postgres:15 #versão 15 do PostgreSQL da internet
+    container_name: matricula_db_container # O nome "caixa virtual"
     ports:
       - "5432:5432" # Abre a porta 5432 do seu PC para o Java conseguir entrar na caixa
     environment:
-      # Aqui definimos a senha, o usuário e o nome do banco de dados (a chave da gaveta!)
+      # senha, o usuário e o nome do banco de dados
       - POSTGRES_USER=postgres
       - POSTGRES_PASSWORD=senha
       - POSTGRES_DB=matricula_facil_db
