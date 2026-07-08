@@ -3,16 +3,17 @@ import { useState } from 'react'
 
 interface DisciplinaCardProps {
     disciplina: Disciplina
+    onMatriculaSucesso?: (creditos: number) => void
+    onCancelamentoSucesso?: (creditos: number) => void
 }
 
-export default function DisciplinaCard({ disciplina }: DisciplinaCardProps) {
+export default function DisciplinaCard({ disciplina, onMatriculaSucesso, onCancelamentoSucesso }: DisciplinaCardProps) {
     const corStatus = disciplina.statusPreRequisito
         ? 'text-green-600 bg-green-50'
         : 'text-red-600 bg-red-50'
 
     const [matriculado, setMatriculado] = useState(false)
 
-    // FUNÇÃO DE MATRICULAR
     async function realizarMatricula() {
         const alunoId = 1;
         try {
@@ -24,35 +25,39 @@ export default function DisciplinaCard({ disciplina }: DisciplinaCardProps) {
             if (response.ok) {
                 const mensagem = await response.text();
                 setMatriculado(true);
+                if (onMatriculaSucesso) {
+                    onMatriculaSucesso(disciplina.creditos);
+                }
             } else {
                 const erroText = await response.text();
             }
         } catch (error) {
-            console.error("Erro ao conectar com o servidor:", error);
-            alert("Não foi possível conectar ao servidor.");
+            console.error(error);
         }
     }
 
-    // DELETE
     async function cancelarMatricula() {
         const alunoId = 1;
         try {
             const response = await fetch(`http://localhost:8080/alunos/${alunoId}/desmatricular/${disciplina.id}`, {
-                method: 'DELETE', //método DELETE do Spring
+                method: 'DELETE',
                 headers: { 'Content-Type': 'application/json' }
             });
 
             if (response.ok) {
                 const mensagem = await response.text();
                 setMatriculado(false);
+                if (onCancelamentoSucesso) {
+                    onCancelamentoSucesso(disciplina.creditos);
+                }
             } else {
                 const erroText = await response.text();
             }
         } catch (error) {
-            console.error("Erro ao conectar com o servidor:", error);
-            alert("Não foi possível conectar ao servidor.");
+            console.error(error);
         }
     }
+
     function handleCliqueBotao() {
         if (matriculado) {
             cancelarMatricula();
@@ -61,11 +66,21 @@ export default function DisciplinaCard({ disciplina }: DisciplinaCardProps) {
         }
     }
 
-    let buttonText = `Matricular`
-    if (disciplina.statusPreRequisito === false){
-        buttonText = `Sem pré-requisito`
-    } else if (matriculado){
-        buttonText = `Matriculado (Cancelar)`
+    let buttonText = 'Matricular'
+    let isBotaoDesativado = false
+    let classesDoBotao = 'bg-brand-primary text-white hover:bg-indigo-700'
+
+    if (disciplina.statusPreRequisito === false) {
+        buttonText = 'Sem pré-requisito'
+        isBotaoDesativado = true
+        classesDoBotao = 'bg-gray-300 text-gray-500 cursor-not-allowed'
+    } else if (matriculado) {
+        buttonText = 'Matriculado (Cancelar)'
+        classesDoBotao = 'bg-green-500 text-white hover:bg-red-500'
+    } else if (disciplina.vagas <= 0) {
+        buttonText = 'Vagas esgotadas'
+        isBotaoDesativado = true
+        classesDoBotao = 'bg-gray-300 text-gray-500 cursor-not-allowed'
     }
 
     return (
@@ -88,12 +103,8 @@ export default function DisciplinaCard({ disciplina }: DisciplinaCardProps) {
 
             <button
                 onClick={handleCliqueBotao}
-                disabled={!disciplina.statusPreRequisito}
-                className={`mt-2 w-full py-2 rounded-lg font-medium transition-colors ${
-                    matriculado
-                    ? 'bg-green-500 text-white hover:bg-red-500'
-                    : 'bg-brand-primary text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed'
-                }`}
+                disabled={isBotaoDesativado}
+                className={`mt-2 w-full py-2 rounded-lg font-medium transition-colors ${classesDoBotao}`}
             >
                 {buttonText}
             </button>

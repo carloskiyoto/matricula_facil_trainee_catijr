@@ -30,7 +30,7 @@ public class DataBaseSeed {
             Disciplina  calc1 = new Disciplina();
             calc1.setNome("Cálculo 1");
             calc1.setCodigo("MAT01");
-            calc1.setCreditos(60);
+            calc1.setCreditos(6);
             calc1.setHorario("14:00");
             calc1.setVagas(60);
             calc1.setStatusPreRequisito(true);
@@ -50,7 +50,7 @@ public class DataBaseSeed {
             ed.setNome("Estrutura de Dados");
             ed.setCodigo("ED102");
             ed.setCreditos(4);
-            ed.setVagas(25);
+            ed.setVagas(5);
             ed.setHorario("Terça e Quinta - 10:00");
             ed.setStatusPreRequisito(true);
             disciplinaRepository.save(ed);

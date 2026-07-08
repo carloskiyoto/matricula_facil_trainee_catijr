@@ -1,4 +1,4 @@
-package com.cati.matricula_facil.service;
+package com.cati.matricula_facil.services;
 
 import com.cati.matricula_facil.domain.Aluno;
 import com.cati.matricula_facil.domain.Disciplina;
@@ -51,8 +51,27 @@ public class AlunoService {
             return "JA_MATRICULADO";
         }
 
+        if (disciplina.getVagas() <= 0) {
+            return "VAGAS_ESGOTADAS";
+        }
+        //Validação do Limite de Créditos
+        int somaCreditosAtuais = 0;
+
+        for (Disciplina d : aluno.getDisciplinas()) {
+            somaCreditosAtuais += d.getCreditos();
+        }
+
+        // Se o que ele já tem + o que ele quer agora passar de 20, bloquea
+        if (somaCreditosAtuais + disciplina.getCreditos() > 20) {
+            return "LIMITE_CREDITOS_EXCEDIDO";
+        }
+
+        disciplina.setVagas(disciplina.getVagas() - 1);
         aluno.getDisciplinas().add(disciplina);
+
         alunoRepository.save(aluno);
+        disciplinaRepository.save(disciplina);
+
         return "SUCESSO";
     }
 
@@ -71,8 +90,12 @@ public class AlunoService {
             return "NAO_MATRICULADO";
         }
 
+        disciplina.setVagas(disciplina.getVagas() + 1);
+
         aluno.getDisciplinas().remove(disciplina);
         alunoRepository.save(aluno);
+        disciplinaRepository.save(disciplina);
+
         return "SUCESSO";
     }
 }

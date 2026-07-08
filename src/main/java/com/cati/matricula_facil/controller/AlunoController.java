@@ -3,7 +3,7 @@ package com.cati.matricula_facil.controller;
 import com.cati.matricula_facil.domain.Aluno;
 import com.cati.matricula_facil.dto.AlunoCadastroDTO;
 import com.cati.matricula_facil.dto.AlunoLoginDTO;
-import com.cati.matricula_facil.service.AlunoService; // Importe o seu novo Service
+import com.cati.matricula_facil.services.AlunoService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,7 +41,12 @@ public class AlunoController {
         if (resultado.equals("NAO_ENCONTRADO")) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aluno ou Disciplina não encontrados.");
         } else if (resultado.equals("JA_MATRICULADO")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Aluno já está matriculado nesta disciplina.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O aluno já está matriculado nesta disciplina.");
+        } else if (resultado.equals("VAGAS_ESGOTADAS")) {
+            // Nova resposta caso não haja vagas!
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não há vagas disponíveis para esta disciplina.");
+        } else if (resultado.equals("LIMITE_CREDITOS_EXCEDIDO")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matrícula bloqueada: Ultrapassa o limite máximo de 20 créditos.");
         }
 
         return ResponseEntity.status(HttpStatus.OK).body("Matrícula realizada com sucesso!");
