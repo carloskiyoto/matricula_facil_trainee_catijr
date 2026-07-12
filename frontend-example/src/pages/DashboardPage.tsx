@@ -13,13 +13,15 @@ export default function DashboardPage() {
     useEffect(() => {
         async function buscarDisciplinas() {
             try {
-                const resposta = await fetch('http://localhost:8080/disciplinas')
+                const resposta = await fetch('http://localhost:8080/alunos/1/disciplinas')
                 if (resposta.ok) {
                     const dados = await resposta.json()
                     setDisciplinas(dados)
+                } else {
+                    console.error("deu merda no back. Status:", resposta.status)
                 }
             } catch (erro) {
-                console.error(erro)
+                console.error("deu merda nas disciplinas", erro)
             }
         }
 

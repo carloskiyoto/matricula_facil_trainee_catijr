@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -28,9 +29,20 @@ public class Disciplina {
     private Integer vagas;
     private Integer creditos;
     private String horario;
+    @Transient
     private boolean statusPreRequisito;
 
-    @ManyToMany
-    private List<Disciplina> preRequisitos;
 
+    // tabela auxiliar
+    @ElementCollection
+    private List<String> codigosPreRequisitos = new ArrayList<>();
+
+
+    public List<String> getCodigosPreRequisitos() {
+        return codigosPreRequisitos;
+    }
+
+    public void setCodigosPreRequisitos(List<String> codigosPreRequisitos) {
+        this.codigosPreRequisitos = codigosPreRequisitos;
+    }
 }

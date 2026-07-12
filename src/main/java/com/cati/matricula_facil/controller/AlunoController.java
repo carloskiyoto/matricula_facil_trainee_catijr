@@ -1,6 +1,7 @@
 package com.cati.matricula_facil.controller;
 
 import com.cati.matricula_facil.domain.Aluno;
+import com.cati.matricula_facil.domain.Disciplina;
 import com.cati.matricula_facil.dto.AlunoCadastroDTO;
 import com.cati.matricula_facil.dto.AlunoLoginDTO;
 import com.cati.matricula_facil.services.AlunoService;
@@ -8,6 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/alunos")
@@ -47,7 +50,10 @@ public class AlunoController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não há vagas disponíveis para esta disciplina.");
         } else if (resultado.equals("LIMITE_CREDITOS_EXCEDIDO")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matrícula bloqueada: Ultrapassa o limite máximo de 20 créditos.");
+        } else if (resultado.equals("FALTA_PREREQUISITO")) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matéria sem pré-requisito");
         }
+
 
         return ResponseEntity.status(HttpStatus.OK).body("Matrícula realizada com sucesso!");
     }
@@ -63,5 +69,10 @@ public class AlunoController {
         }
 
         return ResponseEntity.status(HttpStatus.OK).body("Matrícula cancelada com sucesso!");
+    }
+    // Rota que devolve o catálogo já auto-bloqueado para o aluno
+    @GetMapping("/{alunoId}/disciplinas")
+    public ResponseEntity<List<Disciplina>> verCatalogoDoAluno(@PathVariable Long alunoId) {
+        return ResponseEntity.ok(alunoService.listarDisciplinasParaAluno(alunoId));
     }
 }

@@ -1,7 +1,7 @@
 package com.cati.matricula_facil.controller;
 
 import com.cati.matricula_facil.domain.Disciplina;
-import com.cati.matricula_facil.service.DisciplinaService; // Importa o teu novo Service
+import com.cati.matricula_facil.services.DisciplinaService; // Importa o teu novo Service
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

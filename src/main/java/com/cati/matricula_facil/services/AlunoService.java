@@ -9,6 +9,7 @@ import com.cati.matricula_facil.repository.DisciplinaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -66,6 +67,17 @@ public class AlunoService {
             return "LIMITE_CREDITOS_EXCEDIDO";
         }
 
+        //Trava de pré-requisito
+        if (disciplina.getCodigosPreRequisitos() != null && !disciplina.getCodigosPreRequisitos().isEmpty()) {
+            java.util.List<String> codigosDoAluno = new java.util.ArrayList<>();
+            for (Disciplina d : aluno.getDisciplinas()) {
+                codigosDoAluno.add(d.getCodigo());
+            }
+            if (!codigosDoAluno.containsAll(disciplina.getCodigosPreRequisitos())) {
+                return "FALTA_PREREQUISITO";
+            }
+        }
+
         disciplina.setVagas(disciplina.getVagas() - 1);
         aluno.getDisciplinas().add(disciplina);
 
@@ -98,4 +110,32 @@ public class AlunoService {
 
         return "SUCESSO";
     }
+
+    //Gera o catálogo personalizado para um aluno específico
+    public List<Disciplina> listarDisciplinasParaAluno(Long alunoId) {
+        Optional<Aluno> alunoOptional = alunoRepository.findById(alunoId);
+        if (alunoOptional.isEmpty()) return new java.util.ArrayList<>();
+
+        Aluno aluno = alunoOptional.get();
+        List<Disciplina> todasDisciplinas = disciplinaRepository.findAll();
+
+        //Pega os códigos de todas as matérias que o aluno já tem/fez
+        java.util.List<String> codigosDoAluno = new java.util.ArrayList<>();
+        for (Disciplina d : aluno.getDisciplinas()) {
+            codigosDoAluno.add(d.getCodigo());
+        }
+
+        //Verifica matéria por matéria
+        for (Disciplina disciplina : todasDisciplinas) {
+            if (disciplina.getCodigosPreRequisitos() == null || disciplina.getCodigosPreRequisitos().isEmpty()) {
+                disciplina.setStatusPreRequisito(true); // Sem pré-requisito = Liberado
+            } else {
+                // Checa se a lista do aluno contém TODOS os códigos que a disciplina pede
+                boolean temTodos = codigosDoAluno.containsAll(disciplina.getCodigosPreRequisitos());
+                disciplina.setStatusPreRequisito(temTodos); // Se tiver todos = true, senão = false (bloqueia sozinho)
+            }
+        }
+        return todasDisciplinas;
+    }
+
 }

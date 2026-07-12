@@ -23,13 +23,11 @@ export default function DisciplinaCard({ disciplina, onMatriculaSucesso, onCance
             });
 
             if (response.ok) {
-                const mensagem = await response.text();
                 setMatriculado(true);
                 if (onMatriculaSucesso) {
                     onMatriculaSucesso(disciplina.creditos);
                 }
             } else {
-                const erroText = await response.text();
             }
         } catch (error) {
             console.error(error);
@@ -45,13 +43,11 @@ export default function DisciplinaCard({ disciplina, onMatriculaSucesso, onCance
             });
 
             if (response.ok) {
-                const mensagem = await response.text();
                 setMatriculado(false);
                 if (onCancelamentoSucesso) {
                     onCancelamentoSucesso(disciplina.creditos);
                 }
             } else {
-                const erroText = await response.text();
             }
         } catch (error) {
             console.error(error);
@@ -85,15 +81,29 @@ export default function DisciplinaCard({ disciplina, onMatriculaSucesso, onCance
 
     return (
         <div className="bg-white border border-ui-border rounded-xl p-5 shadow-sm flex flex-col gap-3">
+
+            {/*CABEÇALHO DO CARD*/}
             <div className="flex justify-between items-start">
                 <div>
                     <h3 className="font-bold text-lg text-ui-dark">{disciplina.nome}</h3>
                     <span className="text-sm text-ui-muted font-medium">{disciplina.codigo}</span>
                 </div>
-                <span className={`text-xs font-bold px-2 py-1 rounded-md ${corStatus}`}>
-                  {disciplina.statusPreRequisito ? "Disponível" : "Bloqueado"}
-                </span>
+
+                {/*Badge de Bloqueio */}
+                <div className="flex flex-col items-end gap-1">
+                    <span className={`text-xs font-bold px-2 py-1 rounded-md ${corStatus}`}>
+                      {disciplina.statusPreRequisito ? "Disponível" : "Bloqueado"}
+                    </span>
+
+                    {/* Se estiver bloqueado E a lista de pré-requisitos existir, renderiza os códigos */}
+                    {!disciplina.statusPreRequisito && disciplina.codigosPreRequisitos && disciplina.codigosPreRequisitos.length > 0 && (
+                        <span className="text-[11px] text-red-500 font-semibold bg-red-50 px-2 py-0.5 rounded border border-red-100">
+                            Falta: {disciplina.codigosPreRequisitos.join(', ')}
+                        </span>
+                    )}
+                </div>
             </div>
+            {/* FIM DO CABEÇALHO DO CARD */}
 
             <div className="flex flex-col gap-1 text-sm text-ui-medium mt-2">
                 <p>📚 {disciplina.creditos} Créditos</p>

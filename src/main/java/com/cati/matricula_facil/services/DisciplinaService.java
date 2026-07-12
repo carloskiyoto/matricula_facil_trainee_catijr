@@ -1,4 +1,4 @@
-package com.cati.matricula_facil.service;
+package com.cati.matricula_facil.services;
 
 import com.cati.matricula_facil.domain.Disciplina;
 import com.cati.matricula_facil.repository.DisciplinaRepository;
@@ -23,6 +23,16 @@ public class DisciplinaService {
     }
 
     public Disciplina salvar(Disciplina disciplina) {
+        //Checa se os códigos de pré-requisito digitados
+        if (disciplina.getCodigosPreRequisitos() != null) {
+            for (String codigo : disciplina.getCodigosPreRequisitos()) {
+                Optional<Disciplina> preReq = disciplinaRepository.findByCodigo(codigo);
+                if (preReq.isEmpty()) {
+                    // bloqueia a criação da matéria
+                    throw new RuntimeException("Erro ao cadastrar: O pré-requisito '" + codigo + "' não existe no banco de dados");
+                }
+            }
+        }
         return disciplinaRepository.save(disciplina);
     }
 }
