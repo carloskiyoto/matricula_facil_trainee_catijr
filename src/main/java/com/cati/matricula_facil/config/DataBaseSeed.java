@@ -13,6 +13,21 @@ import java.util.List;
 
 @Configuration
 public class DataBaseSeed {
+    private void criarDisciplina(DisciplinaRepository repo, String nome, String codigo, int creditos, int vagas, String horario, List<String> preRequisitos) {
+        Disciplina d = new Disciplina();
+        d.setNome(nome);
+        d.setCodigo(codigo);
+        d.setCreditos(creditos);
+        d.setVagas(vagas);
+        d.setHorario(horario);
+
+        // se a lista de pre-requisitos não for nula,adiciona na matéria
+        if (preRequisitos != null) {
+            d.setCodigosPreRequisitos(preRequisitos);
+        }
+
+        repo.save(d);
+    }
 
     @Bean
     CommandLineRunner initDatabase(DisciplinaRepository disciplinaRepository, AlunoRepository alunoRepository) {
@@ -26,37 +41,21 @@ public class DataBaseSeed {
             Cadu.setEmail("cadu@cadu.com");
             Cadu = alunoRepository.save(Cadu);
 
-            // ✨ ALARME DE ID PARA O REACT!
-            System.out.println("=========================================");
-            System.out.println("🚨 ID DO ALUNO CADU: " + Cadu.getId());
-            System.out.println("=========================================");
+            // materia sem pre-requisito
+            criarDisciplina(disciplinaRepository, "Cálculo 1", "MAT01", 6, 60, "Seg e Qua - 14:00", null);
+            criarDisciplina(disciplinaRepository, "Estrutura de Dados", "ED102", 8, 5, "Ter e Qui - 10:00", null);
+            criarDisciplina(disciplinaRepository, "Programação Orientada a Objetos", "POO100", 4, 40, "Sex - 08:00", null);
+            criarDisciplina(disciplinaRepository, "Algoritmos Gulosos", "AG01", 6, 40, "Sex - 08:00", null);
 
-            Disciplina calc1 = new Disciplina();
-            calc1.setNome("Cálculo 1");
-            calc1.setCodigo("MAT01");
-            calc1.setCreditos(6);
-            calc1.setHorario("14:00");
-            calc1.setVagas(60);
-            calc1 = disciplinaRepository.save(calc1);
 
-            Disciplina calc2 = new Disciplina();
-            calc2.setNome("Cálculo 2");
-            calc2.setCodigo("MAT02");
-            calc2.setCreditos(4);
-            calc2.setVagas(35);
-            calc2.setHorario("10:00");
-            calc2.setCodigosPreRequisitos(List.of("MAT01"));
-            disciplinaRepository.save(calc2);
+            // materia com pre-requisito
+            criarDisciplina(disciplinaRepository, "Cálculo 2", "MAT02", 4, 35, "Seg e Qua - 10:00", List.of("MAT01"));
 
-            Disciplina ed = new Disciplina();
-            ed.setNome("Estrutura de Dados");
-            ed.setCodigo("ED102");
-            ed.setCreditos(4);
-            ed.setVagas(5);
-            ed.setHorario("Terça e Quinta - 10:00");
-            disciplinaRepository.save(ed);
+            // 2 pre-requisitos
+            criarDisciplina(disciplinaRepository, "Algoritmos Avançados", "ALG200", 6, 20, "Sex - 14:00", List.of("MAT01", "ED102"));
 
             System.out.println("tá feito chefe, disciplinas criadas");
         };
     }
+
 }

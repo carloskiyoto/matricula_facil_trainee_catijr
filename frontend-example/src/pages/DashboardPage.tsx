@@ -17,11 +17,16 @@ export default function DashboardPage() {
                 if (resposta.ok) {
                     const dados = await resposta.json()
                     setDisciplinas(dados)
-                } else {
-                    console.error("deu merda no back. Status:", resposta.status)
+
+
+                    const creditosIniciais = dados
+                        .filter((materia: Disciplina) => materia.matriculada)
+                        .reduce((soma: number, materia: Disciplina) => soma + materia.creditos, 0)
+
+                    setCreditosTotais(creditosIniciais)
                 }
             } catch (erro) {
-                console.error("deu merda nas disciplinas", erro)
+                console.error(erro)
             }
         }
 
@@ -49,6 +54,7 @@ export default function DashboardPage() {
                                 disciplina={materia}
                                 onMatriculaSucesso={(creditos) => setCreditosTotais(prev => prev + creditos)}
                                 onCancelamentoSucesso={(creditos) => setCreditosTotais(prev => prev - creditos)}
+                                creditosTotais={creditosTotais}
                             />
                         ))
                     )}

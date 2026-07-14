@@ -127,6 +127,10 @@ public class AlunoService {
 
         //Verifica matéria por matéria
         for (Disciplina disciplina : todasDisciplinas) {
+            // Cruza os dados do banco e marca se o aluno já está matriculado ou nao
+            boolean jaMatriculado = codigosDoAluno.contains(disciplina.getCodigo());
+            disciplina.setMatriculada(jaMatriculado);
+
             if (disciplina.getCodigosPreRequisitos() == null || disciplina.getCodigosPreRequisitos().isEmpty()) {
                 disciplina.setStatusPreRequisito(true); // Sem pré-requisito = Liberado
             } else {

@@ -45,4 +45,12 @@ public class Disciplina {
     public void setCodigosPreRequisitos(List<String> codigosPreRequisitos) {
         this.codigosPreRequisitos = codigosPreRequisitos;
     }
+
+    @Transient
+    private boolean matriculada;
+
+    public boolean isMatriculada() {
+        return matriculada;
+    }
+
 }

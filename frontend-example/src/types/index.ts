@@ -21,4 +21,5 @@ export interface Disciplina {
   creditos: number
   horario: string
   codigosPreRequisitos?: string[];
+  matriculada: boolean;
 }
