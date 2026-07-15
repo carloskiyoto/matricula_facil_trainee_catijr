@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { GraduationCapIcon, MenuIcon } from '../assets/icons'
 import { User } from '../types'
+import { Link, useLocation } from 'react-router-dom'
 
 interface DashboardHeaderProps {
   user: User
@@ -8,7 +9,7 @@ interface DashboardHeaderProps {
 
 interface NavLink {
   label: string
-  href: string
+  to: string // de href para 'to' para o React Router entender
   active: boolean
 }
 
@@ -21,10 +22,20 @@ function getInitials(name: string): string {
 }
 
 export default function DashboardHeader({ user }: DashboardHeaderProps) {
+  const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
 
   const navLinks: NavLink[] = [
-    { label: 'Catálogo', href: '#', active: true },
+    {
+      label: 'Catálogo',
+      to: '/dashboard',
+      active: location.pathname === '/dashboard' || location.pathname === '/'
+    },
+    {
+      label: 'Minhas Matérias',
+      to: '/minhas-materias',
+      active: location.pathname === '/minhas-materias'
+    },
   ]
 
   return (
@@ -45,9 +56,9 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           {/* Nav links — desktop */}
           <nav className="hidden md:flex justify-items-start gap-1">
             {navLinks.map((link) => (
-              <a
+              <Link //trocaa tag <a> por <Link>
                 key={link.label}
-                href={link.href}
+                to={link.to} //  href por to
                 className={[
                   'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
                   link.active
@@ -56,7 +67,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
                 ].join(' ')}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
 
@@ -90,9 +101,10 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
         {mobileMenuOpen && (
           <nav className="md:hidden border-t border-ui-border py-2 flex flex-col gap-1">
             {navLinks.map((link) => (
-              <a
+              <Link
                 key={link.label}
-                href={link.href}
+                to={link.to}
+                onClick={() => setMobileMenuOpen(false)} // Esconde o menu ao clicar
                 className={[
                   'px-4 py-2.5 rounded-lg text-sm font-medium transition-colors',
                   link.active
@@ -101,7 +113,7 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
                 ].join(' ')}
               >
                 {link.label}
-              </a>
+              </Link>
             ))}
           </nav>
         )}

@@ -1,65 +1,46 @@
 import DashboardHeader from '../components/DashboardHeader'
-import CatalogHeading from '../components/CatalogHeading'
 import mockUser from '../services/mockUser'
-import { useState, useEffect } from 'react'
 import { Disciplina } from "../types"
 import DisciplinaCard from "../components/DisciplinaCard"
-import BarraCreditos from "../components/BarraCreditos"
 
-export default function DashboardPage() {
-    const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
-    const [creditosTotais, setCreditosTotais] = useState(0)
+interface DashboardPageProps {
+    disciplinas: Disciplina[]
+    setDisciplinas: React.Dispatch<React.SetStateAction<Disciplina[]>>
+    creditosTotais: number
+    setCreditosTotais: React.Dispatch<React.SetStateAction<number>>
+}
 
-    useEffect(() => {
-        async function buscarDisciplinas() {
-            try {
-                const resposta = await fetch('http://localhost:8080/alunos/1/disciplinas')
-                if (resposta.ok) {
-                    const dados = await resposta.json()
-                    setDisciplinas(dados)
+export default function DashboardPage({ disciplinas, setDisciplinas, creditosTotais, setCreditosTotais }: DashboardPageProps) {
 
+    // Função chamada quando matricula no card (atualiza localmente o estado global)
+    const handleMatricula = (materiaId: number, creditos: number) => {
+        setCreditosTotais(prev => prev + creditos)
+        setDisciplinas(prev => prev.map(d => d.id === materiaId ? { ...d, matriculada: true } : d))
+    }
 
-                    const creditosIniciais = dados
-                        .filter((materia: Disciplina) => materia.matriculada)
-                        .reduce((soma: number, materia: Disciplina) => soma + materia.creditos, 0)
-
-                    setCreditosTotais(creditosIniciais)
-                }
-            } catch (erro) {
-                console.error(erro)
-            }
-        }
-
-        buscarDisciplinas()
-    }, [])
+    // Função chamada quando cancela no card (atualiza localmente o estado global)
+    const handleCancelamento = (materiaId: number, creditos: number) => {
+        setCreditosTotais(prev => prev - creditos)
+        setDisciplinas(prev => prev.map(d => d.id === materiaId ? { ...d, matriculada: false } : d))
+    }
 
     return (
         <div className="min-h-screen bg-ui-bg">
             <DashboardHeader user={mockUser} />
-
-            <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-10">
-                <CatalogHeading semestre={mockUser.semestre} />
-
-                <div className="flex justify-end mb-6 mt-4">
-                    <BarraCreditos creditosAtuais={creditosTotais} creditosMaximos={20} />
+            <main className="max-w-7xl mx-auto px-4 py-8">
+                {/* Seu layout da barra de créditos e título aqui */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
+                    {disciplinas.map((materia) => (
+                        <DisciplinaCard
+                            key={materia.id}
+                            disciplina={materia}
+                            creditosTotais={creditosTotais}
+                            modoMinhasMaterias={false}
+                            onMatriculaSucesso={() => handleMatricula(materia.id, materia.creditos)}
+                            onCancelamentoSucesso={() => handleCancelamento(materia.id, materia.creditos)}
+                        />
+                    ))}
                 </div>
-
-                <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {disciplinas.length === 0 ? (
-                        <p className="text-ui-muted">Carregando catálogo...</p>
-                    ) : (
-                        disciplinas.map((materia) => (
-                            <DisciplinaCard
-                                key={materia.id}
-                                disciplina={materia}
-                                onMatriculaSucesso={(creditos) => setCreditosTotais(prev => prev + creditos)}
-                                onCancelamentoSucesso={(creditos) => setCreditosTotais(prev => prev - creditos)}
-                                creditosTotais={creditosTotais}
-                            />
-                        ))
-                    )}
-                </div>
-                <div className="mt-8" />
             </main>
         </div>
     )

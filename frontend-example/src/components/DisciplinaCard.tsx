@@ -1,14 +1,17 @@
 import { Disciplina } from '../types'
 import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 
 interface DisciplinaCardProps {
     disciplina: Disciplina
     creditosTotais: number;
+    modoMinhasMaterias?: boolean
     onMatriculaSucesso?: (creditos: number) => void
     onCancelamentoSucesso?: (creditos: number) => void
 }
 
-export default function DisciplinaCard({ disciplina, creditosTotais, onMatriculaSucesso, onCancelamentoSucesso }: DisciplinaCardProps) {
+export default function DisciplinaCard({ disciplina, creditosTotais, onMatriculaSucesso, onCancelamentoSucesso, modoMinhasMaterias }: DisciplinaCardProps) {
+    const navigate = useNavigate();
     const corStatus = disciplina.statusPreRequisito
         ? 'text-green-600 bg-green-50'
         : 'text-red-600 bg-red-50'
@@ -121,13 +124,30 @@ export default function DisciplinaCard({ disciplina, creditosTotais, onMatricula
                 <p>👥 {disciplina.vagas} vagas disponíveis</p>
             </div>
 
-            <button
-                onClick={handleCliqueBotao}
-                disabled={isBotaoDesativado}
-                className={`mt-2 w-full py-2 rounded-lg font-medium transition-colors ${classesDoBotao}`}
-            >
-                {buttonText}
-            </button>
+            {modoMinhasMaterias ? (
+                            <div className="mt-auto flex gap-2">
+                                <button
+                                    onClick={() => navigate(`/detalhes/${disciplina.id}`)}
+                                    className="flex-1 py-2 rounded-lg font-medium text-sm transition-colors bg-brand-light text-brand-primary hover:bg-indigo-100 border border-brand-light"
+                                >
+                                    Ver Detalhes
+                                </button>
+                                <button
+                                    onClick={handleCliqueBotao}
+                                    disabled={isBotaoDesativado}
+                                    className="flex-1 py-2 rounded-lg font-medium text-sm transition-colors bg-red-500 text-white hover:bg-red-600"                                >
+                                    Cancelar
+                                </button>
+                            </div>
+                        ) : (
+                            <button
+                                onClick={handleCliqueBotao}
+                                disabled={isBotaoDesativado}
+                                className={`mt-auto w-full py-2 rounded-lg font-medium transition-colors ${classesDoBotao}`}
+                            >
+                                {buttonText}
+                            </button>
+                        )}
         </div>
     )
 }
