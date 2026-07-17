@@ -7,6 +7,7 @@ import com.cati.matricula_facil.dto.AlunoLoginDTO;
 import com.cati.matricula_facil.repository.AlunoRepository;
 import com.cati.matricula_facil.repository.DisciplinaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -25,7 +26,9 @@ public class AlunoService {
         Aluno novoAluno = new Aluno();
         novoAluno.setNome(dados.nome());
         novoAluno.setEmail(dados.email());
-        novoAluno.setSenha(dados.senha());
+        BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+        String senhaCriptografada = encoder.encode(dados.senha());
+        novoAluno.setSenha(senhaCriptografada);
         return alunoRepository.save(novoAluno);
     }
 

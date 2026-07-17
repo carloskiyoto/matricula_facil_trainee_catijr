@@ -8,42 +8,43 @@ interface LoginCardProps {
 }
 
 export default function LoginCard({ onNavigate }: LoginCardProps) {
-  // 1. Criamos memórias para guardar o email, a senha e as mensagens de erro
   const [email, setEmail] = useState('')
   const [senha, setSenha] = useState('')
   const [erro, setErro] = useState('')
 
-  // 2. A função que acontece quando clicamos em "Entrar"
   async function handleSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault() // Evita que a página recarregue
     setErro('') // Limpa erros antigos
 
     try {
-      // 3. Chamamos o "Carteiro" para bater na porta do Java
-      const resposta = await fetch('http://localhost:8080/alunos/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json' // Avisamos que estamos mandando um papel no formato JSON
-        },
-        // 4. Montamos o JSON
-        body: JSON.stringify({
-          email: email,
-          senha: senha
-        })
-      })
+                // Chama a porta trancada do Java passando o email e a senha digitados
+                const response = await fetch('http://localhost:8080/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // verifique se as suas variáveis de estado se chamam 'email' e 'senha' mesmo
+                    body: JSON.stringify({ email: email, senha: senha })
+                });
 
-      // 5. O que o Java respondeu?
-      if (resposta.ok) { // É um código 200 ?
-        onNavigate?.('dashboard')
-      } else {
-        // Deu código 401 (Unauthorized)
-        setErro('E-mail ou senha incorretos.')
-      }
-    } catch (error) {
-      // Erro de rede
-      setErro('Erro ao conectar ao servidor.')
-    }
-  }
+                if (response.ok) {
+                    // Se o Java aprovar, ele devolve o crachá (token) e os dados do aluno
+                    const dados = await response.json();
+
+                    // SALVANDO O CRACHÁ NO NAVEGADOR
+                    localStorage.setItem('token', dados.token);
+                    localStorage.setItem('alunoId', String(dados.id));
+
+                     window.location.href = '/dashboard';
+
+                } else {
+                    // Erro 401 ou 403 (Senha errada)
+                    setErro('E-mail ou senha incorretos.')
+                }
+            } catch (error) {
+                console.error("Erro na requisição:", error);
+                setErro('Erro ao conectar ao servidor.')
+            }
+        }
+
 
   return (
       <div className="bg-white border border-ui-border rounded-xl drop-shadow-[0px_1px_1px_rgba(0,0,0,0.05)] flex flex-col gap-8 p-6 sm:p-[33px]">

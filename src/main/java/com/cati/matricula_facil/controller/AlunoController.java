@@ -26,16 +26,6 @@ public class AlunoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(alunoSalvo);
     }
 
-    @PostMapping("/login")
-    public ResponseEntity<String> login(@RequestBody AlunoLoginDTO dados) {
-        Aluno alunoLogado = alunoService.realizarLogin(dados);
-
-        if (alunoLogado != null) {
-            System.out.println("Aluno logado com sucesso");
-            return ResponseEntity.status(HttpStatus.OK).body("Bem vindo " + alunoLogado.getNome());
-        }
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("E-mail ou senha incorretos");
-    }
 
     @PostMapping("/{alunoId}/matricular/{disciplinaId}")
     public ResponseEntity<String> matricular(@PathVariable Long alunoId, @PathVariable Long disciplinaId) {

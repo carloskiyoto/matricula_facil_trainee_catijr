@@ -18,30 +18,49 @@ function SignupWrapper() {
 }
 
 export default function App() {
-  // ✨ Armazenamos as disciplinas e os créditos aqui na raiz para "congelar"
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [creditosTotais, setCreditosTotais] = useState(0)
 
-  // ✨ O fetch SÓ roda no carregamento inicial (ou F5)
   useEffect(() => {
     async function carregarDadosIniciais() {
-      try {
-        const resposta = await fetch('http://localhost:8080/alunos/1/disciplinas')
-        if (resposta.ok) {
-          const dados = await resposta.json()
-          setDisciplinas(dados)
+      // Pega as credenciais guardadas no login
+      const token = localStorage.getItem('token');
+      const alunoId = localStorage.getItem('alunoId') || 1;
 
-          // Calcula os créditos salvos inicialmente no banco
+      if (!token) {
+          console.warn("Usuário não autenticado.");
+          return;
+      }
+
+      try {
+        //Faz o fetch usando o ID e o Token
+        const resposta = await fetch(`http://localhost:8080/alunos/${alunoId}/disciplinas`, {
+          method: 'GET',
+          headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${token}` // crachá para o Java liberar o acesso
+          }
+        });
+
+        if (resposta.ok) {
+          const dados = await resposta.json();
+          setDisciplinas(dados);
+
+          //calcula os créditos iniciais baseados nos dados que vieram do banco
           const iniciais = dados
             .filter((m: Disciplina) => m.matriculada)
-            .reduce((soma: number, m: Disciplina) => soma + m.creditos, 0)
-          setCreditosTotais(iniciais)
+            .reduce((soma: number, m: Disciplina) => soma + m.creditos, 0);
+
+          setCreditosTotais(iniciais);
+        } else {
+          console.error("Erro ao carregar: Status", resposta.status);
         }
       } catch (erro) {
-        console.error("Erro ao carregar dados:", erro)
+        console.error("Erro na conexão com o servidor:", erro);
       }
     }
-    carregarDadosIniciais()
+
+    carregarDadosIniciais();
   }, [])
 
   return (
@@ -51,7 +70,7 @@ export default function App() {
         <Route path="/login" element={<LoginWrapper />} />
         <Route path="/signup" element={<SignupWrapper />} />
 
-        {/* Passamos o estado fixo e as funções de alteração para as páginas */}
+
         <Route
           path="/dashboard"
           element={

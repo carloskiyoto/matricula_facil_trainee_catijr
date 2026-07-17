@@ -23,11 +23,14 @@ export default function DisciplinaCard({ disciplina, creditosTotais, onMatricula
     }, [disciplina.matriculada])
 
     async function realizarMatricula() {
-        const alunoId = 1;
+        const alunoId = localStorage.getItem('alunoId');
+        const token = localStorage.getItem('token');
+
         try {
             const response = await fetch(`http://localhost:8080/alunos/${alunoId}/matricular/${disciplina.id}`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`}
             });
 
             if (response.ok) {
@@ -44,11 +47,13 @@ export default function DisciplinaCard({ disciplina, creditosTotais, onMatricula
     }
 
     async function cancelarMatricula() {
-        const alunoId = 1;
+        const alunoId = localStorage.getItem('alunoId');
+        const token = localStorage.getItem('token');
         try {
             const response = await fetch(`http://localhost:8080/alunos/${alunoId}/desmatricular/${disciplina.id}`, {
                 method: 'DELETE',
-                headers: { 'Content-Type': 'application/json' }
+                headers: { 'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`}
             });
 
             if (response.ok) {

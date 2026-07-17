@@ -7,6 +7,7 @@ import com.cati.matricula_facil.repository.DisciplinaRepository;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,13 +34,6 @@ public class DataBaseSeed {
     CommandLineRunner initDatabase(DisciplinaRepository disciplinaRepository, AlunoRepository alunoRepository) {
         return args -> {
             System.out.println("começando o cornojob");
-
-            Aluno Cadu = new Aluno();
-            Cadu.setNome("Cadu");
-            Cadu.setDisciplinas(new ArrayList<>());
-            Cadu.setSenha("123");
-            Cadu.setEmail("cadu@cadu.com");
-            Cadu = alunoRepository.save(Cadu);
 
             // materia sem pre-requisito
             criarDisciplina(disciplinaRepository, "Cálculo 1", "MAT01", 6, 60, "Seg e Qua - 14:00", null);
