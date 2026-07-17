@@ -20,6 +20,8 @@ export interface Disciplina {
   vagas: number
   creditos: number
   horario: string
-  codigosPreRequisitos?: string[];
-  matriculada: boolean;
+  codigosPreRequisitos?: string[]
+  matriculada: boolean
+  departamento: string
+  periodo: number
 }

@@ -32,6 +32,7 @@ export default function LoginCard({ onNavigate }: LoginCardProps) {
                     // SALVANDO O CRACHÁ NO NAVEGADOR
                     localStorage.setItem('token', dados.token);
                     localStorage.setItem('alunoId', String(dados.id));
+                    localStorage.setItem('alunoNome', dados.nome);
 
                      window.location.href = '/dashboard';
 

@@ -6,7 +6,7 @@ import DashboardPage from './pages/DashboardPage'
 import MinhasMateriasPage from './pages/MinhasMateriasPage'
 import DetalhesDisciplinaPage from './pages/DetalhesDisciplinaPage'
 import { Disciplina } from './types'
-
+import fotoAvatar from './assets/avatar.jpg'
 function LoginWrapper() {
   const navigate = useNavigate()
   return <LoginPage onNavigate={(page) => navigate(`/${page}`)} />
@@ -21,17 +21,33 @@ export default function App() {
   const [disciplinas, setDisciplinas] = useState<Disciplina[]>([])
   const [creditosTotais, setCreditosTotais] = useState(0)
 
+  const [usuarioLogado, setUsuarioLogado] = useState<any>({
+      id: 1,
+      name: 'Carregando...',
+      email: '',
+      avatar: fotoAvatar,
+      avatarUrl: fotoAvatar
+    })
   useEffect(() => {
     async function carregarDadosIniciais() {
       // Pega as credenciais guardadas no login
       const token = localStorage.getItem('token');
       const alunoId = localStorage.getItem('alunoId') || 1;
+      const alunoNome = localStorage.getItem('alunoNome') || 'Aluno';
 
       if (!token) {
           console.warn("Usuário não autenticado.");
           return;
       }
-
+      setUsuarioLogado({
+              id: Number(alunoId),
+              name: alunoNome,
+              email: 'aluno@institucional.edu.br', // temporario
+              curso: 'Ciência da Computação',      // exemplo geral
+              periodo: '1º Período',
+              avatar: fotoAvatar,
+              avatarUrl: fotoAvatar
+            })
       try {
         //Faz o fetch usando o ID e o Token
         const resposta = await fetch(`http://localhost:8080/alunos/${alunoId}/disciplinas`, {
@@ -79,6 +95,7 @@ export default function App() {
               setDisciplinas={setDisciplinas}
               creditosTotais={creditosTotais}
               setCreditosTotais={setCreditosTotais}
+              usuarioLogado={usuarioLogado}
             />
           }
         />
@@ -89,6 +106,7 @@ export default function App() {
               disciplinas={disciplinas}
               setDisciplinas={setDisciplinas}
               setCreditosTotais={setCreditosTotais}
+              usuarioLogado={usuarioLogado}
             />
           }
         />

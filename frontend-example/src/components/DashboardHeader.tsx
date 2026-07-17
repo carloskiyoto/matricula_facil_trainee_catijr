@@ -72,29 +72,38 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           </nav>
 
           {/* Right side */}
-          <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3">
 
-            {/* User badge */}
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center shrink-0">
-                <span className="text-white text-xs font-semibold leading-none">
-                  {getInitials(user.name)}
-                </span>
-              </div>
-              <div className="hidden sm:flex flex-col leading-tight">
-                <span className="text-sm font-medium text-ui-dark">{user.name}</span>
-                <span className="text-xs text-ui-muted">{user.periodo}</span>
-              </div>
-            </div>
+                    {/* User badge */}
+                    <div className="flex items-center gap-2">
+                      {user.avatar ? (
+                        <img
+                          src={user.avatar}
+                          alt={`Foto de ${user.name}`}
+                          className="w-8 h-8 rounded-full object-cover shrink-0 border border-gray-200"
+                        />
+                      ) : (
+                        <div className="w-8 h-8 rounded-full bg-brand-accent flex items-center justify-center shrink-0">
+                          <span className="text-white text-xs font-semibold leading-none">
+                            {getInitials(user.name)}
+                          </span>
+                        </div>
+                      )}
+                      <div className="hidden sm:flex flex-col leading-tight">
+                        <span className="text-sm font-medium text-ui-dark">{user.name}</span>
+                        <span className="text-xs text-ui-muted">{user.periodo}</span>
+                      </div>
 
-            {/* Mobile menu toggle */}
-            <button
-              className="md:hidden text-ui-muted hover:text-ui-dark transition-colors p-1.5 rounded-lg hover:bg-ui-bg"
-              onClick={() => setMobileMenuOpen((v) => !v)}
-            >
-              <MenuIcon />
-            </button>
-          </div>
+                    </div>
+
+                    {/* Mobile menu toggle */}
+                    <button
+                      className="md:hidden text-ui-muted hover:text-ui-dark transition-colors p-1.5 rounded-lg hover:bg-ui-bg"
+                      onClick={() => setMobileMenuOpen((v) => !v)}
+                    >
+                      <MenuIcon />
+                    </button>
+                  </div>
         </div>
 
         {/* Mobile nav */}
