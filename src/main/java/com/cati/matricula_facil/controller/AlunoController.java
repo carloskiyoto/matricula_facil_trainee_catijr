@@ -39,7 +39,7 @@ public class AlunoController {
             // Nova resposta caso não haja vagas!
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não há vagas disponíveis para esta disciplina.");
         } else if (resultado.equals("LIMITE_CREDITOS_EXCEDIDO")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matrícula bloqueada: Ultrapassa o limite máximo de 20 créditos.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matrícula bloqueada: Ultrapassa o limite máximo de 24 créditos.");
         } else if (resultado.equals("FALTA_PREREQUISITO")) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matéria sem pré-requisito");
         }

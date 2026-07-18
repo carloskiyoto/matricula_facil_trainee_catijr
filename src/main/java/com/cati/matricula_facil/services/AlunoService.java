@@ -51,6 +51,8 @@ public class AlunoService {
         Aluno aluno = alunoOptional.get();
         Disciplina disciplina = disciplinaOptional.get();
 
+
+
         if (aluno.getDisciplinas().contains(disciplina)) {
             return "JA_MATRICULADO";
         }
@@ -62,11 +64,12 @@ public class AlunoService {
         int somaCreditosAtuais = 0;
 
         for (Disciplina d : aluno.getDisciplinas()) {
-            somaCreditosAtuais += d.getCreditos();
+            if (!"Aprovado".equals(d.getStatusConclusao())) {
+                somaCreditosAtuais += d.getCreditos();
+            }
         }
 
-        // Se o que ele já tem + o que ele quer agora passar de 20, bloquea
-        if (somaCreditosAtuais + disciplina.getCreditos() > 20) {
+        if (somaCreditosAtuais + disciplina.getCreditos() > 24) {
             return "LIMITE_CREDITOS_EXCEDIDO";
         }
 
@@ -114,7 +117,6 @@ public class AlunoService {
         return "SUCESSO";
     }
 
-    //Gera o catálogo personalizado para um aluno específico
     public List<Disciplina> listarDisciplinasParaAluno(Long alunoId) {
         Optional<Aluno> alunoOptional = alunoRepository.findById(alunoId);
         if (alunoOptional.isEmpty()) return new java.util.ArrayList<>();
@@ -122,24 +124,40 @@ public class AlunoService {
         Aluno aluno = alunoOptional.get();
         List<Disciplina> todasDisciplinas = disciplinaRepository.findAll();
 
-        //Pega os códigos de todas as matérias que o aluno já tem/fez
-        java.util.List<String> codigosDoAluno = new java.util.ArrayList<>();
+        // 1. CRIAMOS UM MAPA DE STATUS
+        // Isso guarda: {"MAT01": "Aprovado", "FIS01": "Reprovado"}
+        java.util.Map<String, String> statusMapa = new java.util.HashMap<>();
+        System.out.println("--- Diagnóstico do Aluno: " + aluno.getNome() + " ---");
         for (Disciplina d : aluno.getDisciplinas()) {
-            codigosDoAluno.add(d.getCodigo());
+            statusMapa.put(d.getCodigo(), d.getStatusConclusao());
+            System.out.println("Matéria encontrada na lista do aluno: " + d.getCodigo() + " | Status: " + d.getStatusConclusao());
+        }
+        System.out.println("----------------------------------------------");
+        for (Disciplina d : aluno.getDisciplinas()) {
+            statusMapa.put(d.getCodigo(), d.getStatusConclusao());
         }
 
-        //Verifica matéria por matéria
+        // 2. VERIFICAÇÃO INTELIGENTE
         for (Disciplina disciplina : todasDisciplinas) {
-            // Cruza os dados do banco e marca se o aluno já está matriculado ou nao
-            boolean jaMatriculado = codigosDoAluno.contains(disciplina.getCodigo());
-            disciplina.setMatriculada(jaMatriculado);
+            // Marca se já está matriculada (isso não muda)
+            disciplina.setMatriculada(statusMapa.containsKey(disciplina.getCodigo()));
 
+            // Lógica de Pré-Requisitos
             if (disciplina.getCodigosPreRequisitos() == null || disciplina.getCodigosPreRequisitos().isEmpty()) {
-                disciplina.setStatusPreRequisito(true); // Sem pré-requisito = Liberado
+                disciplina.setStatusPreRequisito(true);
             } else {
-                // Checa se a lista do aluno contém TODOS os códigos que a disciplina pede
-                boolean temTodos = codigosDoAluno.containsAll(disciplina.getCodigosPreRequisitos());
-                disciplina.setStatusPreRequisito(temTodos); // Se tiver todos = true, senão = false (bloqueia sozinho)
+                // Checamos se TODOS os códigos exigidos estão no mapa E se o status deles é "Aprovado"
+                boolean liberado = true;
+                for (String preReq : disciplina.getCodigosPreRequisitos()) {
+                    String status = statusMapa.get(preReq);
+
+                    // Se o status NÃO for "Aprovado", bloqueia a disciplina
+                    if (!"Aprovado".equals(status)) {
+                        liberado = false;
+                        break;
+                    }
+                }
+                disciplina.setStatusPreRequisito(liberado);
             }
         }
         return todasDisciplinas;

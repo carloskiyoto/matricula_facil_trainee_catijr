@@ -32,25 +32,16 @@ public class Disciplina {
     @Transient
     private boolean statusPreRequisito;
 
+    private String departamento;
+    private Integer periodo;
+
 
     // tabela auxiliar
     @ElementCollection
     private List<String> codigosPreRequisitos = new ArrayList<>();
 
-
-    public List<String> getCodigosPreRequisitos() {
-        return codigosPreRequisitos;
-    }
-
-    public void setCodigosPreRequisitos(List<String> codigosPreRequisitos) {
-        this.codigosPreRequisitos = codigosPreRequisitos;
-    }
-
     @Transient
     private boolean matriculada;
 
-    public boolean isMatriculada() {
-        return matriculada;
-    }
-
+    private String statusConclusao;
 }
