@@ -4,6 +4,60 @@ import { Disciplina } from "../types"
 import DisciplinaCard from "../components/DisciplinaCard"
 import BarraCreditos from '../components/BarraCreditos'
 import { useState } from 'react'
+//menu animado
+function FiltroCustomizado({ valor, onChange, opcoes, placeholder }: { valor: string, onChange: (v: string) => void, opcoes: string[], placeholder: string }) {
+    const [aberto, setAberto] = useState(false);
+    const selecionado = valor === '';
+
+    return (
+        <div className="relative w-full sm:w-auto">
+            {/* O Botão que o usuário clica */}
+            <button
+                type="button"
+                onClick={() => setAberto(!aberto)}
+                onBlur={() => setTimeout(() => setAberto(false), 150)}
+                className={`flex items-center justify-between w-full sm:w-48 border rounded-2xl p-2 text-sm shadow-sm transition-all duration-300 ease-in-out focus:outline-none focus:ring-2 focus:ring-brand-primary ${
+                    selecionado
+                        ? "bg-brand-primary text-white border-transparent hover:bg-indigo-700 hover:shadow-md"
+                        : "bg-ui-bg text-ui-dark border-slate-300 hover:bg-slate-100"
+                }`}
+            >
+                <span className="truncate mr-2 font-medium">{valor || placeholder}</span>
+
+                {/* Ícone de setinha que gira suavemente quando abre */}
+                <svg className={`w-4 h-4 transition-transform duration-300 ${aberto ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+
+            {/* A Lista Animada que cai por cima da tela */}
+            <div
+                className={`absolute z-20 w-full mt-2 bg-white border border-slate-200 rounded-2xl shadow-xl transition-all duration-300 origin-top ${
+                    aberto ? "opacity-100 scale-y-100 translate-y-0 visible" : "opacity-0 scale-y-95 -translate-y-2 invisible"
+                }`}
+            >
+                <ul className="max-h-60 overflow-y-auto p-1 scrollbar-thin scrollbar-thumb-slate-200 scrollbar-track-transparent">
+                    <li
+                        onClick={() => { onChange(''); setAberto(false); }}
+                        className={`p-2 text-sm rounded-xl cursor-pointer transition-colors duration-150 ${selecionado ? 'bg-brand-primary/10 text-brand-primary font-bold' : 'text-slate-600 hover:bg-slate-50'}`}
+                    >
+                        {placeholder}
+                    </li>
+                    {opcoes.map(opcao => (
+                        <li
+                            key={opcao}
+                            onClick={() => { onChange(opcao); setAberto(false); }}
+                            className={`p-2 text-sm rounded-xl cursor-pointer transition-colors duration-150 ${valor === opcao ? 'bg-brand-primary text-white font-bold' : 'text-slate-600 hover:bg-slate-50'}`}
+                        >
+                            {opcao}
+                        </li>
+                    ))}
+                </ul>
+            </div>
+        </div>
+    );
+}
+
 interface DashboardPageProps {
     disciplinas: Disciplina[]
     setDisciplinas: React.Dispatch<React.SetStateAction<Disciplina[]>>
@@ -25,8 +79,7 @@ export default function DashboardPage({ disciplinas, setDisciplinas, creditosTot
 
     const disciplinasFiltradas = disciplinas.filter(materia => {
             const matchDepartamento = filtroDepartamento === '' || materia.departamento === filtroDepartamento
-            const matchPeriodo = filtroPeriodo === '' || String(materia.periodo) === filtroPeriodo
-
+const matchPeriodo = filtroPeriodo === '' || `${materia.periodo}º Período` === filtroPeriodo
 
             // funciona mesmo se o usuário digitar em maiusculo ou minusculo
             const nomeMateria = materia.nome ? materia.nome.toLowerCase() : ''
@@ -68,77 +121,49 @@ export default function DashboardPage({ disciplinas, setDisciplinas, creditosTot
 
                         {/* Barra de Créditos */}
                         <div className="flex justify-end">
-                            <BarraCreditos creditosAtuais={creditosTotais} creditosMaximos={20} />
+                            <BarraCreditos creditosAtuais={creditosTotais} creditosMaximos={24} />
                         </div>
                     </div>
 
                     <div className="flex flex-col md:flex-row justify-between gap-4 mb-6 md:items-end w-full">
 
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            {/* 1. Select de Departamentos com estilo condicional */}
-                            <select
-                                className={
-                                    filtroDepartamento === ''
-                                        ? "w-full sm:w-auto border border-slate-500 rounded-full p-2 bg-brand-primary text-white shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary font-medium"
-                                        : "w-full sm:w-auto border border-slate-300 rounded-full p-2 bg-ui-bg text-ui-dark shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                                }
-                                value={filtroDepartamento}
-                                onChange={(e) => setFiltroDepartamento(e.target.value)}
-                            >
-                                <option value="">Todos os Departamentos</option>
-                                {departamentos.map(dep => (
-                                    <option key={dep} value={dep} className="bg-white text-slate-700">{dep}</option>
-                                ))}
-                            </select>
+                                        {/* Bloco da Esquerda: Novos Filtros Animados */}
+                                        <div className="flex flex-col sm:flex-row gap-4">
+                                            <FiltroCustomizado
+                                                valor={filtroDepartamento}
+                                                onChange={setFiltroDepartamento}
+                                                opcoes={departamentos}
+                                                placeholder="Todos os Departamentos"
+                                            />
 
-                            {/* 2. Select de Períodos com estilo condicional */}
-                            <select
-                                className={
-                                    filtroPeriodo === ''
-                                        ? "w-full sm:w-auto border border-slate-500 rounded-full p-2 bg-brand-primary text-white shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary font-medium"
-                                        : "w-full sm:w-auto border border-slate-300 rounded-full p-2 bg-slate-50 text-ui-dark shadow-sm text-sm focus:outline-none focus:ring-2 focus:ring-brand-primary"
-                                }
-                                value={filtroPeriodo}
-                                onChange={(e) => setFiltroPeriodo(e.target.value)}
-                            >
-                                <option value="">Todos os Períodos</option>
-                                {periodos.map(per => (
-                                    <option key={per} value={per} className="bg-white text-slate-700">{per}º Período</option>
-                                ))}
-                            </select>
-                        </div>
+                                            <FiltroCustomizado
+                                                valor={filtroPeriodo}
+                                                onChange={setFiltroPeriodo}
+                                                opcoes={periodos.map(p => `${p}º Período`)}
+                                                placeholder="Todos os Períodos"
+                                            />
+                                        </div>
 
-                        {/* Container da Busca */}
-                        <div className="w-full md:w-96 relative">
-                            {/* ✨ O ÍCONE DE LUPA: Fica posicionado de forma absoluta por cima do input */}
-                            <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <svg
-                                    className="w-4 h-4 text-ui-muted"
-                                    aria-hidden="true"
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="none"
-                                    viewBox="0 0 20 20"
-                                >
-                                    <path
-                                        stroke="currentColor"
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth="2"
-                                        d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-                                    />
-                                </svg>
-                            </div>
-
-                            {/* ✨ O INPUT: Ganhando um recuo extra na esquerda (pl-10) para o texto não atropelar a lupa */}
-                            <input
-                                type="text"
-                                placeholder="Buscar disciplinas ou códigos..."
-                                value={buscaTexto}
-                                onChange={(e) => setBuscaTexto(e.target.value)}
-                                className="w-full border border-ui-border rounded-full py-2 pl-10 pr-3 text-ui-dark bg-white focus:outline-none focus:ring-2 focus:ring-brand-primary placeholder:text-ui-muted text-sm shadow-sm"
-                            />
-                        </div>
-                    </div>
+                                        {/* Bloco da Direita: Busca com Animação Suave */}
+                                        <div className="w-full md:w-96 relative group">
+                                            <div className="relative">
+                                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                                    {/* O Ícone de lupa que muda de cor ao focar */}
+                                                    <svg className="w-4 h-4 text-ui-muted transition-colors duration-300 group-focus-within:text-brand-primary" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 20 20">
+                                                        <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"/>
+                                                    </svg>
+                                                </div>
+                                                <input
+                                                    type="text"
+                                                    placeholder="Buscar disciplinas ou códigos..."
+                                                    value={buscaTexto}
+                                                    onChange={(e) => setBuscaTexto(e.target.value)}
+                                                    // ✨ As classes de transição (transition-all, hover, shadow) fazem a mágica aqui:
+                                                    className="w-full border border-ui-border rounded-2xl py-2.5 pl-10 pr-3 text-ui-dark bg-white transition-all duration-300 ease-in-out hover:border-slate-400 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-brand-primary/20 focus:border-brand-primary focus:-translate-y-0.5 placeholder:text-ui-muted text-sm shadow-sm"
+                                                />
+                                            </div>
+                                        </div>
+                                    </div>
 
                                     <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                                         {disciplinasFiltradas.map((materia) => (

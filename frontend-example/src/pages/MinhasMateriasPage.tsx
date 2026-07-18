@@ -13,7 +13,7 @@ interface MinhasMateriasPageProps {
 export default function MinhasMateriasPage({ disciplinas, setDisciplinas, setCreditosTotais, usuarioLogado }: MinhasMateriasPageProps) {
 
 
-    const minhasDisciplinas = disciplinas.filter(materia => materia.matriculada === true)
+    const minhasDisciplinas = disciplinas.filter(materia => materia.matriculada === true && materia.statusConclusao !== 'Aprovado')
 
     const handleCancelamento = (materiaId: number, creditos: number) => {
         setCreditosTotais(prev => prev - creditos)

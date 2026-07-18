@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { GraduationCapIcon, MenuIcon } from '../assets/icons'
 import { User } from '../types'
 import { Link, useLocation } from 'react-router-dom'
-
+import { motion } from 'framer-motion'; // Importe no topo
 interface DashboardHeaderProps {
   user: User
 }
@@ -54,22 +54,27 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
           </div>
 
           {/* Nav links — desktop */}
-          <nav className="hidden md:flex justify-items-start gap-1">
-            {navLinks.map((link) => (
-              <Link //trocaa tag <a> por <Link>
-                key={link.label}
-                to={link.to} //  href por to
-                className={[
-                  'px-4 py-2 rounded-lg text-sm font-medium transition-colors',
-                  link.active
-                    ? 'bg-brand-light text-brand-primary'
-                    : 'text-ui-medium hover:bg-ui-bg hover:text-ui-dark',
-                ].join(' ')}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
+         <nav className="hidden md:flex justify-items-start gap-1">
+           {navLinks.map((link) => (
+             <Link
+               key={link.label}
+               to={link.to}
+               className="relative px-4 py-2 text-sm font-medium transition-colors"
+             >
+               {/* Esse elemento cria o fundo que desliza */}
+               {link.active && (
+                 <motion.div
+                   layoutId="activeTab" // O segredo é esse ID igual para todos
+                   className="absolute inset-0 bg-brand-light rounded-lg z-[-1]"
+                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                 />
+               )}
+               <span className={link.active ? 'text-brand-primary' : 'text-ui-medium'}>
+                 {link.label}
+               </span>
+             </Link>
+           ))}
+         </nav>
 
           {/* Right side */}
                   <div className="flex items-center gap-3">

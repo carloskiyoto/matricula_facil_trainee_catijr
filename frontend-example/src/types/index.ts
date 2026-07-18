@@ -24,4 +24,5 @@ export interface Disciplina {
   matriculada: boolean
   departamento: string
   periodo: number
+  statusConclusao?: string
 }

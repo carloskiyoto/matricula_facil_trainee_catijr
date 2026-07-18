@@ -44,7 +44,7 @@ export default function App() {
               name: alunoNome,
               email: 'aluno@institucional.edu.br', // temporario
               curso: 'Ciência da Computação',      // exemplo geral
-              periodo: '1º Período',
+              periodo: '2º Período',
               avatar: fotoAvatar,
               avatarUrl: fotoAvatar
             })
@@ -64,7 +64,7 @@ export default function App() {
 
           //calcula os créditos iniciais baseados nos dados que vieram do banco
           const iniciais = dados
-            .filter((m: Disciplina) => m.matriculada)
+            .filter((m: Disciplina) => m.matriculada && m.statusConclusao !== 'Aprovado')
             .reduce((soma: number, m: Disciplina) => soma + m.creditos, 0);
 
           setCreditosTotais(iniciais);

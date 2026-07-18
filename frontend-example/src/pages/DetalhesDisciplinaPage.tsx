@@ -43,6 +43,8 @@ export default function DetalhesDisciplinaPage({ disciplinas }: DetalhesProps) {
                                     <li><strong>📚 Créditos:</strong> {disciplina.creditos}</li>
                                     <li><strong>🕒 Horário:</strong> {disciplina.horario}</li>
                                     <li><strong>👥 Vagas Totais:</strong> {disciplina.vagas}</li>
+                                    <li><strong>⏳ Período:</strong> {disciplina.periodo}</li>
+                                    <li><strong>🏢 Departamento:</strong> {disciplina.departamento}</li>
                                     <li><strong>✨ Status:</strong> {disciplina.matriculada ? 'Cursando' : 'Não matriculado'}</li>
                                 </ul>
                             </div>
