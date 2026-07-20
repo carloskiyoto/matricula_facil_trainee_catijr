@@ -26,9 +26,10 @@ public class Aluno {
     private String email;
 
     private String senha;
+    private Integer periodo;
 
-    @ManyToMany //um aluno tem varias disciplinas, as quais tem varios alunos
-    private List<Disciplina> disciplinas = new java.util.ArrayList<>();
+    @OneToMany //um aluno tem varias matriculas
+    private List<Matricula> matriculas = new java.util.ArrayList<>();
 
 
 }

@@ -158,7 +158,7 @@ const matchPeriodo = filtroPeriodo === '' || `${materia.periodo}º Período` ===
                                                     placeholder="Buscar disciplinas ou códigos..."
                                                     value={buscaTexto}
                                                     onChange={(e) => setBuscaTexto(e.target.value)}
-                                                    // ✨ As classes de transição (transition-all, hover, shadow) fazem a mágica aqui:
+
                                                     className="w-full border border-ui-border rounded-2xl py-2.5 pl-10 pr-3 text-ui-dark bg-white transition-all duration-300 ease-in-out hover:border-slate-400 hover:shadow-md focus:outline-none focus:ring-4 focus:ring-brand-primary/20 focus:border-brand-primary focus:-translate-y-0.5 placeholder:text-ui-muted text-sm shadow-sm"
                                                 />
                                             </div>

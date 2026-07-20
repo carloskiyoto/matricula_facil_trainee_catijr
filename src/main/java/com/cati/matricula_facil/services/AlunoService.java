@@ -2,10 +2,12 @@ package com.cati.matricula_facil.services;
 
 import com.cati.matricula_facil.domain.Aluno;
 import com.cati.matricula_facil.domain.Disciplina;
+import com.cati.matricula_facil.domain.Matricula;
 import com.cati.matricula_facil.dto.AlunoCadastroDTO;
 import com.cati.matricula_facil.dto.AlunoLoginDTO;
 import com.cati.matricula_facil.repository.AlunoRepository;
 import com.cati.matricula_facil.repository.DisciplinaRepository;
+import com.cati.matricula_facil.repository.MatriculaRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -18,6 +20,9 @@ public class AlunoService {
 
     @Autowired
     private AlunoRepository alunoRepository;
+
+    @Autowired
+    private MatriculaRepository matriculaRepository;
 
     @Autowired
     private DisciplinaRepository disciplinaRepository;
@@ -34,10 +39,13 @@ public class AlunoService {
 
     public Aluno realizarLogin(AlunoLoginDTO dados) {
         Optional<Aluno> alunoOptional = alunoRepository.findByEmail(dados.email());
-        if (alunoOptional.isPresent() && alunoOptional.get().getSenha().equals(dados.senha())) {
-            return alunoOptional.get(); // Retorna o aluno se a senha bater
+        if (alunoOptional.isPresent()) {
+            BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
+            if (encoder.matches(dados.senha(), alunoOptional.get().getSenha())) {
+                return alunoOptional.get();
+            }
         }
-        return null; // Retorna nulo se der errado
+        return null;
     }
 
     public String matricular(Long alunoId, Long disciplinaId) {
@@ -48,24 +56,31 @@ public class AlunoService {
             return "NAO_ENCONTRADO";
         }
 
+        Optional<Matricula> matriculaOptional = matriculaRepository.findByAlunoIdAndDisciplinaId(alunoId, disciplinaId);
+
         Aluno aluno = alunoOptional.get();
         Disciplina disciplina = disciplinaOptional.get();
 
+        if (matriculaOptional.isPresent()) {
+            Matricula matricula = matriculaOptional.get();
+            String status = matricula.getStatus();
 
-
-        if (aluno.getDisciplinas().contains(disciplina)) {
-            return "JA_MATRICULADO";
+            if ("Cursando".equals(status) || "Aprovado".equals(status)) {
+                return "JA_MATRICULADO";
+            }
         }
 
         if (disciplina.getVagas() <= 0) {
             return "VAGAS_ESGOTADAS";
         }
-        //Validação do Limite de Créditos
-        int somaCreditosAtuais = 0;
 
-        for (Disciplina d : aluno.getDisciplinas()) {
-            if (!"Aprovado".equals(d.getStatusConclusao())) {
-                somaCreditosAtuais += d.getCreditos();
+        List<Matricula> matriculasAluno = matriculaRepository.findByAlunoId(alunoId);
+
+        int somaCreditosAtuais = 0;
+        for (Matricula m : matriculasAluno) {
+            String status = m.getStatus();
+            if ("Cursando".equals(status)) {
+                somaCreditosAtuais += m.getDisciplina().getCreditos();
             }
         }
 
@@ -73,22 +88,33 @@ public class AlunoService {
             return "LIMITE_CREDITOS_EXCEDIDO";
         }
 
-        //Trava de pré-requisito
         if (disciplina.getCodigosPreRequisitos() != null && !disciplina.getCodigosPreRequisitos().isEmpty()) {
             java.util.List<String> codigosDoAluno = new java.util.ArrayList<>();
-            for (Disciplina d : aluno.getDisciplinas()) {
-                codigosDoAluno.add(d.getCodigo());
+            for (Matricula m : matriculasAluno) {
+                if ("Aprovado".equals(m.getStatus())) {
+                    codigosDoAluno.add(m.getDisciplina().getCodigo());
+                }
             }
+
             if (!codigosDoAluno.containsAll(disciplina.getCodigosPreRequisitos())) {
                 return "FALTA_PREREQUISITO";
             }
         }
 
         disciplina.setVagas(disciplina.getVagas() - 1);
-        aluno.getDisciplinas().add(disciplina);
-
-        alunoRepository.save(aluno);
         disciplinaRepository.save(disciplina);
+
+        Matricula matriculaNova;
+        if (matriculaOptional.isPresent()) {
+            matriculaNova = matriculaOptional.get();
+        } else {
+            matriculaNova = new Matricula();
+        }
+
+        matriculaNova.setAluno(aluno);
+        matriculaNova.setDisciplina(disciplina);
+        matriculaNova.setStatus("Cursando");
+        matriculaRepository.save(matriculaNova);
 
         return "SUCESSO";
     }
@@ -96,63 +122,64 @@ public class AlunoService {
     public String desmatricular(Long alunoId, Long disciplinaId) {
         Optional<Aluno> alunoOptional = alunoRepository.findById(alunoId);
         Optional<Disciplina> disciplinaOptional = disciplinaRepository.findById(disciplinaId);
+        Optional<Matricula> matriculaOptional = matriculaRepository.findByAlunoIdAndDisciplinaId(alunoId, disciplinaId);
 
         if (alunoOptional.isEmpty() || disciplinaOptional.isEmpty()) {
             return "NAO_ENCONTRADO";
         }
+        if (matriculaOptional.isEmpty()) {
+            return "MATRICULA_NAO_ENCONTRADA";
+        }
 
         Aluno aluno = alunoOptional.get();
         Disciplina disciplina = disciplinaOptional.get();
+        Matricula matricula = matriculaOptional.get();
 
-        if (!aluno.getDisciplinas().contains(disciplina)) {
+        String status = matricula.getStatus();
+        if (!"Cursando".equals(status)) {
             return "NAO_MATRICULADO";
         }
 
         disciplina.setVagas(disciplina.getVagas() + 1);
-
-        aluno.getDisciplinas().remove(disciplina);
-        alunoRepository.save(aluno);
         disciplinaRepository.save(disciplina);
+
+        matriculaRepository.delete(matricula); //se caiu aq eh pq tem certeza que matriculaOptional existe
 
         return "SUCESSO";
     }
 
     public List<Disciplina> listarDisciplinasParaAluno(Long alunoId) {
         Optional<Aluno> alunoOptional = alunoRepository.findById(alunoId);
-        if (alunoOptional.isEmpty()) return new java.util.ArrayList<>();
+        List<Matricula> matriculasAluno = matriculaRepository.findByAlunoId(alunoId);
 
-        Aluno aluno = alunoOptional.get();
+        if (alunoOptional.isEmpty()) return new java.util.ArrayList<>();
         List<Disciplina> todasDisciplinas = disciplinaRepository.findAll();
 
-        // 1. CRIAMOS UM MAPA DE STATUS
-        // Isso guarda: {"MAT01": "Aprovado", "FIS01": "Reprovado"}
+        //guarda: {"MAT01": "Aprovado", "FIS01": "Reprovado"}
         java.util.Map<String, String> statusMapa = new java.util.HashMap<>();
-        System.out.println("--- Diagnóstico do Aluno: " + aluno.getNome() + " ---");
-        for (Disciplina d : aluno.getDisciplinas()) {
-            statusMapa.put(d.getCodigo(), d.getStatusConclusao());
-            System.out.println("Matéria encontrada na lista do aluno: " + d.getCodigo() + " | Status: " + d.getStatusConclusao());
-        }
-        System.out.println("----------------------------------------------");
-        for (Disciplina d : aluno.getDisciplinas()) {
-            statusMapa.put(d.getCodigo(), d.getStatusConclusao());
+
+        for (Matricula m : matriculasAluno) {
+            String codigoDisciplina = m.getDisciplina().getCodigo();
+            statusMapa.put(codigoDisciplina, m.getStatus());
         }
 
-        // 2. VERIFICAÇÃO INTELIGENTE
+        // verificacao
         for (Disciplina disciplina : todasDisciplinas) {
-            // Marca se já está matriculada (isso não muda)
-            disciplina.setMatriculada(statusMapa.containsKey(disciplina.getCodigo()));
+            String status = statusMapa.get(disciplina.getCodigo());
+            disciplina.setMatriculada("Cursando".equals(status));
+            disciplina.setStatusConclusao(status); //envia pro front
 
             // Lógica de Pré-Requisitos
             if (disciplina.getCodigosPreRequisitos() == null || disciplina.getCodigosPreRequisitos().isEmpty()) {
                 disciplina.setStatusPreRequisito(true);
             } else {
-                // Checamos se TODOS os códigos exigidos estão no mapa E se o status deles é "Aprovado"
+                // Checa se TODOS os codigos exigidos estão no mapa E se o status deles é "Aprovado"
                 boolean liberado = true;
                 for (String preReq : disciplina.getCodigosPreRequisitos()) {
-                    String status = statusMapa.get(preReq);
+                    String statusPreReq = statusMapa.get(preReq);
 
                     // Se o status NÃO for "Aprovado", bloqueia a disciplina
-                    if (!"Aprovado".equals(status)) {
+                    if (!"Aprovado".equals(statusPreReq)) {
                         liberado = false;
                         break;
                     }

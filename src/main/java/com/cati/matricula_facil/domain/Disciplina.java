@@ -35,6 +35,8 @@ public class Disciplina {
     private String departamento;
     private Integer periodo;
 
+    @Transient
+    private String statusConclusao;
 
     // tabela auxiliar
     @ElementCollection
@@ -42,6 +44,4 @@ public class Disciplina {
 
     @Transient
     private boolean matriculada;
-
-    private String statusConclusao;
 }
