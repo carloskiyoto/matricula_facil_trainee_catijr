@@ -33,6 +33,7 @@ export default function LoginCard({ onNavigate }: LoginCardProps) {
                     localStorage.setItem('token', dados.token);
                     localStorage.setItem('alunoId', String(dados.id));
                     localStorage.setItem('alunoNome', dados.nome);
+                    localStorage.setItem('alunoEmail', email);
 
                      window.location.href = '/dashboard';
 

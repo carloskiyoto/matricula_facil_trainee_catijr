@@ -36,6 +36,11 @@ export default function DashboardHeader({ user }: DashboardHeaderProps) {
       to: '/minhas-materias',
       active: location.pathname === '/minhas-materias'
     },
+    {
+          label: 'Meu Perfil',
+          to: '/meu-perfil',
+          active: location.pathname === '/meu-perfil'
+        },
   ]
 
   return (

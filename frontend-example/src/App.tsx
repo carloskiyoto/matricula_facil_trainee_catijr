@@ -7,6 +7,9 @@ import MinhasMateriasPage from './pages/MinhasMateriasPage'
 import DetalhesDisciplinaPage from './pages/DetalhesDisciplinaPage'
 import { Disciplina } from './types'
 import fotoAvatar from './assets/avatar.jpg'
+import PerfilPage from './pages/PerfilPage'
+import { User } from '../types'
+
 function LoginWrapper() {
   const navigate = useNavigate()
   return <LoginPage onNavigate={(page) => navigate(`/${page}`)} />
@@ -34,7 +37,7 @@ export default function App() {
       const token = localStorage.getItem('token');
       const alunoId = localStorage.getItem('alunoId') || 1;
       const alunoNome = localStorage.getItem('alunoNome') || 'Aluno';
-
+      const alunoEmail = localStorage.getItem('alunoEmail') || '';
       if (!token) {
           console.warn("Usuário não autenticado.");
           return;
@@ -42,7 +45,7 @@ export default function App() {
       setUsuarioLogado({
               id: Number(alunoId),
               name: alunoNome,
-              email: 'aluno@institucional.edu.br', // temporario
+              email: alunoEmail,
               curso: 'Ciência da Computação',      // exemplo geral
               periodo: '2º Período',
               avatar: fotoAvatar,
@@ -85,6 +88,7 @@ export default function App() {
         <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<LoginWrapper />} />
         <Route path="/signup" element={<SignupWrapper />} />
+        <Route path="/meu-perfil" element={<PerfilPage user={usuarioLogado} />} />
 
 
         <Route
