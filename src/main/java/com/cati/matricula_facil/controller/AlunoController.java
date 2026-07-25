@@ -31,21 +31,23 @@ public class AlunoController {
     public ResponseEntity<String> matricular(@PathVariable Long alunoId, @PathVariable Long disciplinaId) {
         String resultado = alunoService.matricular(alunoId, disciplinaId);
 
-        if (resultado.equals("NAO_ENCONTRADO")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aluno ou Disciplina não encontrados.");
-        } else if (resultado.equals("JA_MATRICULADO")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O aluno já está matriculado nesta disciplina.");
-        } else if (resultado.equals("VAGAS_ESGOTADAS")) {
-            // Nova resposta caso não haja vagas!
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não há vagas disponíveis para esta disciplina.");
-        } else if (resultado.equals("LIMITE_CREDITOS_EXCEDIDO")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matrícula bloqueada: Ultrapassa o limite máximo de 24 créditos.");
-        } else if (resultado.equals("FALTA_PREREQUISITO")) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matéria sem pré-requisito");
-        }
+        return switch (resultado) {
+            case "NAO_ENCONTRADO" ->
+                    ResponseEntity.status(HttpStatus.NOT_FOUND).body("Aluno ou Disciplina não encontrados.");
+            case "JA_MATRICULADO" ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("O aluno já está matriculado nesta disciplina.");
+            case "VAGAS_ESGOTADAS" ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Não há vagas disponíveis para esta disciplina.");
+            case "LIMITE_CREDITOS_EXCEDIDO" ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matrícula bloqueada: Ultrapassa o limite máximo de 24 créditos.");
+            case "FALTA_PREREQUISITO" ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Matéria sem pré-requisito");
+            case "HORARIO_OCUPADO" ->
+                    ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Horário já ocupado");
+            default -> ResponseEntity.status(HttpStatus.OK).body("Matrícula realizada com sucesso!");
+        };
 
 
-        return ResponseEntity.status(HttpStatus.OK).body("Matrícula realizada com sucesso!");
     }
 
     @DeleteMapping("/{alunoId}/desmatricular/{disciplinaId}")

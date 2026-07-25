@@ -6,11 +6,12 @@ interface DisciplinaCardProps {
     disciplina: Disciplina
     creditosTotais: number;
     modoMinhasMaterias?: boolean
+    horariosOcupados?: string[];
     onMatriculaSucesso?: (creditos: number) => void
     onCancelamentoSucesso?: (creditos: number) => void
 }
 
-export default function DisciplinaCard({ disciplina, creditosTotais, onMatriculaSucesso, onCancelamentoSucesso, modoMinhasMaterias }: DisciplinaCardProps) {
+export default function DisciplinaCard({ disciplina, creditosTotais, onMatriculaSucesso, horariosOcupados, onCancelamentoSucesso, modoMinhasMaterias }: DisciplinaCardProps) {
     const navigate = useNavigate();
 
     // Cor do Status de Pré-requisito
@@ -87,7 +88,7 @@ export default function DisciplinaCard({ disciplina, creditosTotais, onMatricula
     }
 
     const estouraLimite = (creditosTotais + disciplina.creditos) > 24 && !matriculado;
-
+    const temConflitoHorario = horariosOcupados?.includes(disciplina.horario) && !matriculado;
     // botao
     let buttonText = 'Matricular'
     let isBotaoDesativado = false
@@ -99,6 +100,11 @@ export default function DisciplinaCard({ disciplina, creditosTotais, onMatricula
         isBotaoDesativado = true
         classesDoBotao = 'bg-gray-200 text-gray-500 cursor-not-allowed border border-gray-300'
     }
+    else if (temConflitoHorario) {
+            buttonText = 'Conflito de horário'
+            isBotaoDesativado = true
+            classesDoBotao = 'bg-gray-300 text-gray-500 cursor-not-allowed'
+        }
     // se falta pre req bloqueia
     else if (disciplina.statusPreRequisito === false) {
         buttonText = 'Sem pré-requisito'

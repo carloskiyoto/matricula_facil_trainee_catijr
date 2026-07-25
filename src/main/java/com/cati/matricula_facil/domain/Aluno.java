@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity //vai virar uma tabela no banco de dados
@@ -30,6 +31,9 @@ public class Aluno {
 
     @OneToMany //um aluno tem varias matriculas
     private List<Matricula> matriculas = new java.util.ArrayList<>();
+
+    @ElementCollection
+    private List<String> horariosOcupados = new ArrayList<>();
 
 
 }

@@ -79,7 +79,7 @@ export default function DashboardPage({ disciplinas, setDisciplinas, creditosTot
 
     const disciplinasFiltradas = disciplinas.filter(materia => {
             const matchDepartamento = filtroDepartamento === '' || materia.departamento === filtroDepartamento
-const matchPeriodo = filtroPeriodo === '' || `${materia.periodo}º Período` === filtroPeriodo
+            const matchPeriodo = filtroPeriodo === '' || `${materia.periodo}º Período` === filtroPeriodo
 
             // funciona mesmo se o usuário digitar em maiusculo ou minusculo
             const nomeMateria = materia.nome ? materia.nome.toLowerCase() : ''
@@ -103,6 +103,10 @@ const matchPeriodo = filtroPeriodo === '' || `${materia.periodo}º Período` ===
         setCreditosTotais(prev => prev - creditos)
         setDisciplinas(prev => prev.map(d => d.id === materiaId ? { ...d, matriculada: false } : d))
     }
+
+    const horariosOcupados = disciplinas
+        .filter(d => d.matriculada) // Pega só as que ele está cursando
+        .map(d => d.horario);       // Extrai apenas o texto do horário
 
 
 
@@ -172,6 +176,7 @@ const matchPeriodo = filtroPeriodo === '' || `${materia.periodo}º Período` ===
                                                 disciplina={materia}
                                                 creditosTotais={creditosTotais}
                                                 modoMinhasMaterias={false}
+                                                horariosOcupados={horariosOcupados}
                                                 onMatriculaSucesso={() => handleMatricula(materia.id, materia.creditos)}
                                                 onCancelamentoSucesso={() => handleCancelamento(materia.id, materia.creditos)}
                                             />

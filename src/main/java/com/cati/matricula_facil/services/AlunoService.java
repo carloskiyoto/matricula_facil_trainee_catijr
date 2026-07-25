@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -73,6 +74,12 @@ public class AlunoService {
         if (disciplina.getVagas() <= 0) {
             return "VAGAS_ESGOTADAS";
         }
+        for(String horario : aluno.getHorariosOcupados() ){
+            if( disciplina.getHorario().equals(horario)){
+                return "HORARIO_OCUPADO";
+            }
+        }
+
 
         List<Matricula> matriculasAluno = matriculaRepository.findByAlunoId(alunoId);
 
@@ -116,6 +123,8 @@ public class AlunoService {
         matriculaNova.setStatus("Cursando");
         matriculaRepository.save(matriculaNova);
 
+        aluno.getHorariosOcupados().add(disciplina.getHorario());
+        alunoRepository.save(aluno);
         return "SUCESSO";
     }
 
@@ -144,6 +153,9 @@ public class AlunoService {
         disciplinaRepository.save(disciplina);
 
         matriculaRepository.delete(matricula); //se caiu aq eh pq tem certeza que matriculaOptional existe
+        aluno.getHorariosOcupados().remove(disciplina.getHorario());
+        alunoRepository.save(aluno);
+
 
         return "SUCESSO";
     }
